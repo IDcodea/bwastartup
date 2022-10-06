@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bwastartup/handler"
 	"bwastartup/user"
-	"fmt"
+
+	// "fmt"
 	"log"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -17,15 +20,30 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+
+	userRepository := user.NewRepository(db)
+	userService := user.NewService(userRepository)
 	
-	fmt.Println("connection OK")
+	userHandler:= handler.NewUserHandler(userService)
 
-	var users []user.User
-	db.Find(&users)
+	router :=gin.Default()
+	api:= router.Group("/api/v1")
 
-	for _, user := range users {
-		fmt.Println(user.Name)
-		fmt.Println(user.Email)
-		fmt.Println("==========")
-	}
+	api.POST("/users", userHandler.RegisterUser)
+
+	router.Run()
+
+	// user := user.User{
+	// 	Name: "bwastartup",
+	// }
+
+	// userRepository.Save(user)
+
+	//input dari user
+	//handler, mapping input dari user -> struct input
+	//service : melakukan mapping dari struct input ke struct user 
+	//repository
+	//db
 }
+
+
